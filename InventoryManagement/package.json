@@ -1,15 +1,31 @@
 {
+<<<<<<< Updated upstream
   "name": "inventorymanagement",
+=======
+  "name": "inventories",
+>>>>>>> Stashed changes
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+<<<<<<< Updated upstream
     "test": "echo \"Error: no test specified\" && exit 1"
+=======
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+>>>>>>> Stashed changes
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+<<<<<<< Updated upstream
     "express": "^4.18.2"
+=======
+    "express": "^4.18.2",
+    "firebase": "^10.3.1",
+    "nodemon": "^3.0.1"
+>>>>>>> Stashed changes
   }
 }
