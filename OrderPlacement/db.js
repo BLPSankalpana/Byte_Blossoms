@@ -22,7 +22,7 @@ const knex = require('knex')({
     connection: {
       host: 'localhost',
       user: 'root',
-      password: 'admin',
+      password: 'Wpn10080&@',
       database: 'OrderDatabase'
     }
   });
