@@ -4,9 +4,9 @@ const db = require('../db');
 
 // Create an order
 router.post('/orders', (req, res) => {
-    const { product, quantity } = req.body;
+    const { product, quantity,userId } = req.body;
   
-    db.insert({ product, quantity }).into('orders')
+    db.insert({ product, quantity,userId }).into('orders')
       .then((result) => {
         res.status(201).json({ message: 'Order created successfully', orderId: result[0] });
       })
