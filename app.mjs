@@ -18,7 +18,9 @@ async function getUserName(userId) {
 
 async function getInventoryRes(name,qty) {
   try {
+
     let response = await axios.get(`http://localhost:4000/read?product=${name}&quantity=${qty}&quentityOnly=false`);
+
     return response.data
   } catch (error) {
     
@@ -85,6 +87,7 @@ async function main() {
      
    
     // Simulate order placement
+
     let orderDetails = await promptForOrderDetails();
     let [product, quantity] = orderDetails.split(':');
    let inventoryRes = await getInventoryRes(product, quantity);
@@ -96,11 +99,14 @@ async function main() {
      orderDetails = await promptForOrderDetails();
      [product, quantity] = orderDetails.split(':');
     inventoryRes = await getInventoryRes(product, quantity);
+
     }
 
   const res= await promptForgenerateInvoice()
   if(res=='y'){
+
     await placeOrder(orderDetails,userId);
+
   }else if(res=='n'){
 console.log("Order Cancelled")
   }
@@ -193,6 +199,7 @@ async function placeOrder(OrderDetails,userId) {
         console.error('Error rolling back inventory:', rollbackError);
       }
     }
+
   }
 }
 
