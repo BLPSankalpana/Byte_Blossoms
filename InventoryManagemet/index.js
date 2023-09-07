@@ -108,7 +108,9 @@ app.put("/update/:productName/:quantity", async (req, res) => {
         const existingQuantity = productDoc.data().Quantity;
 
         // Calculate the updated quantity
-        const updatedQuantity = existingQuantity + newQuantity;
+
+        const updatedQuantity =  newQuantity;
+
 
         // Update the inventory with the new quantity
         await updateDoc(productDoc.ref, { Quantity: updatedQuantity });

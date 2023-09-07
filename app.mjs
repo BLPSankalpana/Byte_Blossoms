@@ -18,7 +18,9 @@ async function getUserName(userId) {
 
 async function getInventoryRes(name,qty) {
   try {
-    const response = await axios.get(`http://localhost:4000/read?product=${name}&quantity=${qty}&quentityOnly=false`);
+
+    let response = await axios.get(`http://localhost:4000/read?product=${name}&quantity=${qty}&quentityOnly=false`);
+
     return response.data
   } catch (error) {
     
@@ -85,22 +87,26 @@ async function main() {
      
    
     // Simulate order placement
-    const orderDetails = await promptForOrderDetails();
-    const [product, quantity] = orderDetails.split(':');
-   let inventoryRes = getInventoryRes(product, quantity);
 
-    if(inventoryRes.result!=true){
+    let orderDetails = await promptForOrderDetails();
+    let [product, quantity] = orderDetails.split(':');
+   let inventoryRes = await getInventoryRes(product, quantity);
+     
+    while(inventoryRes.result!=true){
 
     console.log(inventoryRes.message);
     console.log("Plese Try Again");
-    const orderDetails = await promptForOrderDetails();
-    const [product, quantity] = orderDetails.split(':');
-    inventoryRes = getInventoryRes(product, quantity);
+     orderDetails = await promptForOrderDetails();
+     [product, quantity] = orderDetails.split(':');
+    inventoryRes = await getInventoryRes(product, quantity);
+
     }
 
   const res= await promptForgenerateInvoice()
   if(res=='y'){
-    await placeOrder(orderDetails);
+
+    await placeOrder(orderDetails,userId);
+
   }else if(res=='n'){
 console.log("Order Cancelled")
   }
@@ -142,72 +148,58 @@ function promptForOrderDetails() {
   });
 }
 
-async function placeOrder(OrderDetails) {
+async function placeOrder(OrderDetails,userId) {
+   let existingQuantity;
+   let [product, orderedQuantity] = OrderDetails.split(':');
   try {
-      const [product, orderedQuantity] = OrderDetails.split(':');
+    
 
-      // 1. Get the existing quantity
-      const response1 = await axios.get(`http://localhost:4000/read?product=${product}&quantity=${orderedQuantity}&quentityOnly=true`);
-      
-      const existingQuantity = response1.data.remainingQuantity; // Assuming your response structure has a "data" field
+    // Validate input
 
-      if (existingQuantity === undefined) {
-          console.error('Product not found.');
-          return;
-      }
+    if (!product || !orderedQuantity || isNaN(orderedQuantity)) {
+      console.error('Invalid input format.');
+      return;
+    }
 
-      // Calculate the new remaining quantity
-      const newQuantity = existingQuantity - orderedQuantity;
+    // Step 1: Check product availability
+    let response1 = await axios.get(`http://localhost:4000/read?product=${product}&quantity=${orderedQuantity}&quentityOnly=true`);
+     existingQuantity = response1.data.remainingQuantity;
 
+    if (existingQuantity === undefined) {
+      console.error('Product not found.');
+      return;
+    }
+    
 
-      try {
-          await axios.put(`http://localhost:4000/update/${product}/${newQuantity}`);
-      } catch (error) {
-          console.error('Error updating inventory:',error);
-          // Rollback by undoing the inventory update if it fails
-         
+    // Step 2: Calculate new quantity
+    let newQuantity = existingQuantity - orderedQuantity;
 
-          try {
-              await axios.put(`http://localhost:4000/update/${product}/${existingQuantity}`);
-              console.log('Inventory rollback successful.');
-          } catch (rollbackError) {
-              console.error('Error rolling back inventory:');
-              // Handle rollback failure here as needed
-          }
+    // Step 3: Update inventory
+    await axios.put(`http://localhost:4000/update/${product}/${newQuantity}`);
+    console.log('Inventory updated successfully.');
 
-          throw error; // Re-throw the error to indicate the order placement failure
-      }
+    // Step 4: Place the order
+    const orderDetails = {
+      product: product,
+      quantity: orderedQuantity,
+      userId:userId
+    };
 
-      // 3. Attempt to place the order
-      const orderDetails = {
-          product: product,
-          quantity: orderedQuantity
-      };
-
-      try {
-          await axios.post('http://localhost:3002/orders', orderDetails);
-      } catch (error) {
-          console.error('Error placing the order:');
-          // Rollback by undoing the inventory update if placing the order fails
-          const rollbackData = {
-              Quantity: existingQuantity // Reset the inventory to the previous quantity
-          };
-
-          try {
-              await axios.put(`http://localhost:4000/update/${product}/${rollbackData.Quantity}`);
-              console.log('Inventory rollback successful.');
-          } catch (rollbackError) {
-              console.error('Error rolling back inventory:');
-              // Handle rollback failure here as needed
-          }
-
-          throw error; // Re-throw the error to indicate the order placement failure
-      }
-
-      console.log('Order placed successfully.');
+    await axios.post('http://localhost:3002/orders/orders', orderDetails);
+    console.log('Order placed successfully.');
   } catch (error) {
-      console.error('Error:', error);
-      // Handle the error or log it as needed
+    console.error('Error:', error);
+
+    // Rollback inventory if an error occurred
+    if (existingQuantity !== undefined) {
+      try {
+        await axios.put(`http://localhost:4000/update/${product}/${existingQuantity}`);
+        console.log('Inventory rollback successful.');
+      } catch (rollbackError) {
+        console.error('Error rolling back inventory:', rollbackError);
+      }
+    }
+
   }
 }
 
