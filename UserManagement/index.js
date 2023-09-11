@@ -1,11 +1,12 @@
-// microservice-a/index.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const userRoutes = require('./routes/user'); // Import user routes
 
-const mongoURI = "mongodb+srv://prasadeesankalpana:ZLWLCQTXMvXb3ILq@clustera.fwbeaod.mongodb.net/";
 
+require("dotenv").config({ path: '../.env' }); //env configuration
+const mongoURI = process.env.MONGODB_URL;
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -18,9 +19,10 @@ db.once('open', () => {
 });
 
 app.use(express.json());
-app.use('/user', userRoutes); 
+app.use('/user', userRoutes);
 
 const port = 3001;
 app.listen(port, () => {
-  console.log(`Microservice A listening on port ${port}`);
+  console.log(`Microservice A listening on port ${port}`);
 });
+
