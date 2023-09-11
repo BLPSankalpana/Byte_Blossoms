@@ -1,15 +1,16 @@
-// Import the necessary Firebase modules
+
 const { initializeApp } = require('firebase/app');
 const { getFirestore, collection } = require('firebase/firestore');
 
+require("dotenv").config({ path: '../.env' });
 const firebaseConfig = {
-    apiKey: "AIzaSyB6yp26SCuZKMt5ZtU8f40WtYDD6hXduus",
-    authDomain: "byte-blossom.firebaseapp.com",
-    projectId: "byte-blossom",
-    storageBucket: "byte-blossom.appspot.com",
-    messagingSenderId: "512964449819",
-    appId: "1:512964449819:web:070b1bec7bd697ca3c0abe",
-    measurementId: "G-YNR93QP8JQ"
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
   
 };
 

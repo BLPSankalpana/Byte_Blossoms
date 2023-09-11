@@ -1,7 +1,7 @@
-// microservice-a/routes/user.js
+
 const express = require('express');
 const router = express.Router();
-const User = require('../models/user'); // Define the user model
+const User = require('../models/user');
 
 // Create user
 router.post('/users', async (req, res) => {
@@ -27,40 +27,40 @@ router.get('/users/:userId', async (req, res) => {
 
 // Update user by ID
 router.put('/users/:userId', async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const updatedUserData = req.body;
-  
-      const updatedUser = await User.findByIdAndUpdate(userId, updatedUserData, {
-        new: true, // Return the updated user after update
-      });
-  
-      if (!updatedUser) {
-        throw new Error('User not found');
-      }
-  
-      res.json(updatedUser);
-    } catch (error) {
-      res.status(400).json({ error: error.message });
+  try {
+    const userId = req.params.userId;
+    const updatedUserData = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedUserData, {
+      new: true, 
+    });
+
+    if (!updatedUser) {
+      throw new Error('User not found');
     }
-  });
-  
+
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Delete user by ID
 router.delete('/users/:userId', async (req, res) => {
-    try {
-      const userId = req.params.userId;
-  
-      const deletedUser = await User.findByIdAndDelete(userId);
-  
-      if (!deletedUser) {
-        throw new Error('User not found');
-      }
-  
-      res.json({ message: 'User deleted successfully' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-  });
-  
+  try {
+    const userId = req.params.userId;
 
-module.exports = router;
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      throw new Error('User not found');
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+module.exports = router;
